@@ -260,10 +260,22 @@ def technology(request):
 
 def search(request):
     query = request.GET['query']
+    newsapi = NewsApiClient(api_key='f2d21efaf1e4456db37ccaefbb14a4c2')
+    top = newsapi.get_top_headlines(q=query, language='en')
+
+    l = top['articles']
+
+    for i in range(len(l)):
+        f = l[i]
+        f['publishedAt'] = f['publishedAt'][0:10]
+        if not newslist.objects.filter(title=f['title']).exists():
+            newslist(title=f['title'], description=f['description'], image=f['urlToImage'],
+                        author=f['author'], url=f['url'],
+                        publishedAt=f['publishedAt'], content=f['content']).save()
     if len(query) > 100:
         allPosts = []
     else:
-        allPosts = (newslist.objects.filter(title__icontains=query) or Newscountrywise.objects.filter(title__icintains=query) or Newscatwise.objects.filter(title__icontains=query))
+        allPosts = (newslist.objects.filter(title__icontains=query).order_by('-post_id') or Newscountrywise.objects.filter(title__icontains=query).order_by('-post_id') or Newscatwise.objects.filter(title__icontains=query).order_by('-post_id'))
     if not allPosts:
         messages.error(request, "Please enter valid search")
     params = {'allPosts': allPosts, 'query': query}

@@ -17,7 +17,7 @@ class newslist(models.Model):
     description = models.TextField()
     content = models.TextField()
     url = models.URLField(default="")
-    author = models.CharField(max_length=50, default="")
+    author = models.CharField(max_length=50, default="",null=True)
 
     def __str__(self):
         return self.title
